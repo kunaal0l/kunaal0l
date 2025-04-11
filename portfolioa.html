@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kunal Gourv | Portfolio</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.15.1/devicon.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        scroll-behavior: smooth;
+        color: #fff;
+      }
+      body {
+        background: linear-gradient(45deg, #0f0c29, #1a1a2e, #16213e);
+        animation: gradientShift 20s ease infinite;
+        background-size: 400% 400%;
+        overflow-x: hidden;
+      }
+      #three-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -2;
+        pointer-events: none;
+      }
+      canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+      }
+      .glow {
+        position: fixed;
+        width: 100vw;
+        height: 100vh;
+        background: radial-gradient(
+          circle at 50% 50%,
+          rgba(102, 255, 153, 0.1) 0%,
+          rgba(102, 255, 153, 0) 70%
+        );
+        pointer-events: none;
+        z-index: -1;
+      }
+      nav {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background: rgba(15, 12, 41, 0.9);
+        padding: 1rem 2rem;
+        z-index: 1000;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      nav .logo {
+        font-size: 1.5rem;
+        color: #66ff99;
+        font-weight: bold;
+      }
+      nav ul {
+        list-style: none;
+        display: flex;
+        gap: 1.5rem;
+      }
+      nav ul li a {
+        color: #fff;
+        text-decoration: none;
+        font-size: 1rem;
+        transition: color 0.3s;
+      }
+      nav ul li a:hover {
+        color: #66ff99;
+      }
+      .hero {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding-top: 80px;
+      }
+      .hero h1 {
+        font-size: 3.5rem;
+        color: #66ff99;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 0 15px rgba(102, 255, 153, 0.5);
+      }
+      .hero h2 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+      }
+      .hero p {
+        max-width: 700px;
+        font-size: 1rem;
+        color: #ccc;
+        margin-bottom: 2rem;
+      }
+      .hero .buttons a {
+        margin: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: #66ff99;
+        color: #000;
+        text-decoration: none;
+        border-radius: 25px;
+        font-weight: bold;
+        transition: all 0.3s;
+        border: 2px solid transparent;
+      }
+      .hero .buttons a:hover {
+        background: transparent;
+        border-color: #66ff99;
+        color: #66ff99;
+      }
+      section {
+        padding: 4rem 2rem;
+        text-align: center;
+        position: relative;
+      }
+      .section-title {
+        font-size: 2.5rem;
+        color: #66ff99;
+        margin-bottom: 1rem;
+        text-shadow: 0 0 10px rgba(102, 255, 153, 0.3);
+      }
+      .card {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin: 1rem auto;
+        max-width: 800px;
+        text-align: left;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+      }
+      th,
+      td {
+        padding: 0.75rem;
+        border-bottom: 1px solid #444;
+        text-align: left;
+      }
+      .skills-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1rem;
+      }
+      .skill-card {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 1.5rem;
+        border-radius: 15px;
+        text-align: center;
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+      }
+      .skill-card::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: var(--brand-color);
+        transform: scaleX(0);
+        transition: transform 0.3s;
+      }
+      .skill-card:hover::after {
+        transform: scaleX(1);
+      }
+      .skill-card i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        display: block;
+      }
+      .skill-card h3 {
+        color: var(--brand-color);
+        margin-bottom: 0.5rem;
+      }
+      .skill-card p {
+        font-size: 0.9rem;
+        color: #ccc;
+      }
+      .cp-section {
+        margin-top: 2rem;
+        display: grid;
+        gap: 1.5rem;
+      }
+      .cp-platform {
+        padding: 1.5rem;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .cp-platform:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      }
+      .cp-platform img {
+        width: 60px;
+        height: 60px;
+        object-fit: contain;
+      }
+      .cp-platform h3 {
+        color: white;
+        margin-bottom: 0.8rem;
+        font-size: 1.4rem;
+      }
+      .cp-platform p {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.95rem;
+        line-height: 1.4;
+      }
+      #resume {
+        position: relative;
+        min-height: 200px;
+      }
+      #resumeFrame {
+        border: 2px solid #66ff99;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(102, 255, 153, 0.3);
+        display: none;
+        width: 90%;
+        height: 600px;
+        margin: 1rem auto;
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+      }
+      .download-btn {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: #66ff99;
+        color: #000;
+        text-decoration: none;
+        border-radius: 25px;
+        font-weight: bold;
+        transition: all 0.3s;
+        cursor: pointer;
+        border: none;
+      }
+      .download-btn:hover {
+        background: #44dd88;
+      }
+      footer {
+        padding: 2rem;
+        text-align: center;
+        background: rgba(15, 12, 41, 0.9);
+      }
+      @keyframes gradientShift {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+      @media (max-width: 768px) {
+        nav ul {
+          gap: 1rem;
+        }
+        .hero h1 {
+          font-size: 2.5rem;
+        }
+        .hero h2 {
+          font-size: 1.5rem;
+        }
+        #resumeFrame {
+          height: 400px;
+        }
+        .skills-grid {
+          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        }
+        .cp-platform {
+          flex-direction: column;
+          text-align: center;
+        }
+      }
+      .soft-skills .skill-card i {
+        font-size: 2.5rem;
+        color: #66ff99;
+      }
+      #resume .button-group {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        align-items: center;
+        margin: 2rem 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="three-container"></div>
+    <canvas id="bg"></canvas>
+    <div class="glow"></div>
+
+    <nav>
+      <div class="logo">Kunal Gourv</div>
+      <ul>
+        <li><a href="#education">Education</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#skills">Skills</a></li>
+        <li><a href="#achievements">Achievements</a></li>
+        <li><a href="#resume">Resume</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+
+    <header class="hero">
+      <h1>Kunal Gourv</h1>
+      <h2>
+        Electrical Engineer | Full-Stack Developer | Blockchain Enthusiast
+      </h2>
+      <p>IIT Indore Undergrad | Competitive Programmer | Hardware Designer</p>
+      <div class="buttons">
+        <a href="#education">Explore Portfolio</a>
+      </div>
+    </header>
+
+    <section id="education">
+      <h2 class="section-title">Education</h2>
+      <div class="card">
+        <table>
+          <tr>
+            <th>Examination</th>
+            <th>University</th>
+            <th>Institute</th>
+            <th>Year</th>
+            <th>CPI/%</th>
+          </tr>
+          <tr>
+            <td>Graduation (Ongoing)</td>
+            <td>IIT Indore</td>
+            <td>IIT Indore</td>
+            <td>2023–2027</td>
+            <td>8.31 (Current)</td>
+          </tr>
+          <tr>
+            <td>Intermediate/+2</td>
+            <td>CBSE</td>
+            <td>The ABPS Rehla</td>
+            <td>2021–2023</td>
+            <td>93.8</td>
+          </tr>
+          <tr>
+            <td>Matriculation</td>
+            <td>CBSE</td>
+            <td>BP DAV School</td>
+            <td>2021</td>
+            <td>97.6</td>
+          </tr>
+        </table>
+      </div>
+    </section>
+
+    <section id="projects">
+      <h2 class="section-title">Projects</h2>
+      <div class="card">
+        <ul>
+          <li>
+            <strong
+              >Military Radio Transmitter (Core Project – Electronics)</strong
+            ><br />
+            - Designed 1.8 MHz transmitter with helical antenna<br />
+            - L'Espace simulation & custom PCB layout
+          </li>
+          <li>
+            <strong>Decentralized Identity Verification (Blockchain)</strong
+            ><br />
+            - Secure system with Solidity smart contracts<br />
+            - Third-party validator integration
+          </li>
+          <li>
+            <strong>Hostel Management System (Full Stack)</strong><br />
+            - Role-based access portal with MERN stack
+          </li>
+          <li>
+            <strong>Line Follower Robot with Fire Extinguishing</strong><br />
+            - Arduino-based flame detection and suppression system
+          </li>
+          <li>
+            <strong>Buck Converter Design</strong><br />
+            - Efficient voltage step-down PCB using EasyEDA
+          </li>
+          <li>
+            <strong>Razorpay Clone (Frontend)</strong><br />
+            - Responsive UI clone with Tailwind CSS
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="skills">
+      <h2 class="section-title">Technical Skills</h2>
+      <div class="card">
+        <div class="skills-grid">
+          <div class="skill-card" style="--brand-color: #f34b7d">
+            <i class="devicon-cplusplus-plain colored"></i>
+            <h3>C++</h3>
+            <p>Advanced DSA Implementation</p>
+          </div>
+          <div class="skill-card" style="--brand-color: #0076a8">
+            <i class="devicon-matlab-plain colored"></i>
+            <h3>MATLAB</h3>
+            <p>Signal Processing & Simulations</p>
+          </div>
+          <div class="skill-card" style="--brand-color: #61dafb">
+            <i class="devicon-react-original colored"></i>
+            <h3>React</h3>
+            <p>Frontend Development</p>
+          </div>
+          <div class="skill-card" style="--brand-color: #68a063">
+            <i class="devicon-nodejs-plain colored"></i>
+            <h3>Node.js</h3>
+            <p>Backend Services</p>
+          </div>
+        </div>
+
+        <div class="cp-section">
+          <a
+            href="https://codeforces.com/profile/Yuuupppp"
+            target="_blank"
+            class="cp-platform"
+            style="
+              background: linear-gradient(135deg, #2b87d1, #29c7ac);
+              box-shadow: 0 4px 15px rgba(43, 135, 209, 0.3);
+            "
+          >
+            <img
+              src="https://codeforces.org/s/85770/images/codeforces-sponsored-by-ton.png"
+              alt="Codeforces"
+            />
+            <div>
+              <h3>Codeforces</h3>
+              <p>Rated 1229 (Specialist)</p>
+              <p>Solve 150+ problems on this id:Gotaduck</p>
+            </div>
+          </a>
+          <a
+            href="https://leetcode.com/u/kunalbaba"
+            target="_blank"
+            class="cp-platform"
+            style="
+              background: linear-gradient(135deg, #ffa62e, #ff6b35);
+              box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+            "
+          >
+            <img
+              src="https://leetcode.com/static/images/LeetCode_Shining.png"
+              alt="LeetCode"
+            />
+            <div>
+              <h3>LeetCode</h3>
+              <p>50+ Problems Solved</p>
+              <!-- <p>Contest Rating: 1587</p> -->
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section id="achievements">
+      <h2 class="section-title">Achievements</h2>
+      <div class="card">
+        <ul>
+          <li>District Topper - 10th Grade (97.6%)</li>
+          <li>JEE Advanced Qualified</li>
+          <li>LIC Student of the Year (Class 9)</li>
+          <li>Prabhat Khabar Best Student (Class 12)</li>
+        </ul>
+
+        <h3 style="margin-top: 2rem; color: #66ff99">Soft Skills</h3>
+        <div class="skills-grid soft-skills" style="margin-top: 1rem">
+          <div class="skill-card" style="--brand-color: #66ff99">
+            <i class="fas fa-users"></i>
+            <h3>Team Collaboration</h3>
+            <p>Effective group project management</p>
+          </div>
+          <div class="skill-card" style="--brand-color: #66ff99">
+            <i class="fas fa-brain"></i>
+            <h3>Problem Solving</h3>
+            <p>Analytical & critical thinking</p>
+          </div>
+          <div class="skill-card" style="--brand-color: #66ff99">
+            <i class="fas fa-comments"></i>
+            <h3>Communication</h3>
+            <p>Technical & non-technical audiences</p>
+          </div>
+          <div class="skill-card" style="--brand-color: #66ff99">
+            <i class="fas fa-clock"></i>
+            <h3>Time Management</h3>
+            <p>Deadline-driven project delivery</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="resume">
+      <h2 class="section-title">Resume</h2>
+      <div class="button-group">
+        <button class="download-btn" onclick="toggleResume()" id="resumeButton">
+          Show Resume
+        </button>
+        <a
+          class="download-btn"
+          href="IIT_bombay_Resume_template_2021 (2).pdf"
+          download
+        >
+          Download Resume
+        </a>
+      </div>
+      <iframe
+        id="resumeFrame"
+        src="IIT_bombay_Resume_template_2021 (2).pdf"
+      ></iframe>
+    </section>
+
+    <section id="contact">
+      <h2 class="section-title">Contact</h2>
+      <div class="card">
+        <p>
+          Email:
+          <a href="mailto:ee230002036@iiti.ac.in" style="color: #66ff99"
+            >ee230002036@iiti.ac.in</a
+          >
+        </p>
+        <p>
+          PhoneNo:
+          <a href="callto:8434568010" style="color: #66ff99">8434568010</a>
+        </p>
+        <p>
+          GitHub:
+          <a href="https://github.com/kunaal01" style="color: #66ff99"
+            >github.com/kunaal01</a
+          >
+        </p>
+        <div class="social-icons">
+          <a href="https://github.com/kunaal01" target="_blank"
+            ><i class="fab fa-github"></i
+          ></a>
+          <a href="https://codeforces.com/profile/Yuuupppp" target="_blank"
+            ><i class="fas fa-code"></i
+          ></a>
+          <a href="https://leetcode.com/u/kunalbaba" target="_blank"
+            ><i class="fas fa-laptop-code"></i
+          ></a>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p>&copy; 2025 Kunal Gourv. All rights reserved.</p>
+    </footer>
+
+    <script>
+      // Smooth scrolling
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          document.querySelector(this.getAttribute("href")).scrollIntoView({
+            behavior: "smooth",
+          });
+        });
+      });
+
+      // Three.js 3D Scene
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+      const renderer = new THREE.WebGLRenderer({
+        alpha: true,
+        antialias: true,
+      });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document
+        .getElementById("three-container")
+        .appendChild(renderer.domElement);
+
+      // Create Floating Geometric Shapes
+      const geometry = new THREE.IcosahedronGeometry(3, 1);
+      const material = new THREE.MeshPhongMaterial({
+        color: 0x66ff99,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.2,
+      });
+      const icosahedron = new THREE.Mesh(geometry, material);
+      scene.add(icosahedron);
+
+      // Add Lights
+      const ambientLight = new THREE.AmbientLight(0x66ff99, 0.3);
+      const pointLight = new THREE.PointLight(0x66ff99, 0.5);
+      pointLight.position.set(10, 10, 10);
+      scene.add(ambientLight, pointLight);
+
+      camera.position.z = 15;
+
+      // Mouse Interaction
+      let mouseX = 0,
+        mouseY = 0;
+      document.addEventListener("mousemove", (event) => {
+        mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+        mouseY = (event.clientY / window.innerHeight) * 2 - 1;
+      });
+
+      // Animation Loop
+      function animate() {
+        requestAnimationFrame(animate);
+
+        icosahedron.rotation.x += 0.002;
+        icosahedron.rotation.y += 0.003;
+
+        // Subtle mouse interaction
+        icosahedron.position.x += (mouseX * 2 - icosahedron.position.x) * 0.05;
+        icosahedron.position.y += (-mouseY * 2 - icosahedron.position.y) * 0.05;
+
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      // Resize Handler
+      window.addEventListener("resize", () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+
+      // Resume Toggle
+      function toggleResume() {
+        const frame = document.getElementById("resumeFrame");
+        const button = document.getElementById("resumeButton");
+
+        if (frame.style.display === "none" || !frame.style.display) {
+          frame.style.display = "block";
+          frame.style.opacity = "1";
+          button.textContent = "Hide Resume";
+        } else {
+          frame.style.display = "none";
+          frame.style.opacity = "0";
+          button.textContent = "Show Resume";
+        }
+      }
+
+      // Floating Particles
+      class Particle {
+        constructor() {
+          this.x = Math.random() * window.innerWidth;
+          this.y = Math.random() * window.innerHeight;
+          this.velocity = {
+            x: (Math.random() - 0.5) * 0.5,
+            y: (Math.random() - 0.5) * 0.5,
+          };
+          this.radius = Math.random() * 1.5;
+          this.color = `rgba(102, 255, 153, ${Math.random() * 0.4})`;
+        }
+
+        draw(ctx) {
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+          ctx.fillStyle = this.color;
+          ctx.fill();
+        }
+
+        update(ctx) {
+          this.x += this.velocity.x;
+          this.y += this.velocity.y;
+
+          if (this.x > window.innerWidth + this.radius) this.x = -this.radius;
+          if (this.x < -this.radius) this.x = window.innerWidth + this.radius;
+          if (this.y > window.innerHeight + this.radius) this.y = -this.radius;
+          if (this.y < -this.radius) this.y = window.innerHeight + this.radius;
+
+          this.draw(ctx);
+        }
+      }
+
+      // Initialize Particles
+      const particles = [];
+      const particleCanvas = document.getElementById("bg");
+      const particleCtx = particleCanvas.getContext("2d");
+      particleCanvas.width = window.innerWidth;
+      particleCanvas.height = window.innerHeight;
+
+      for (let i = 0; i < 150; i++) {
+        particles.push(new Particle());
+      }
+
+      // Particle Animation
+      function animateParticles() {
+        particleCtx.fillStyle = "rgba(16, 16, 42, 0.05)";
+        particleCtx.fillRect(0, 0, particleCanvas.width, particleCanvas.height);
+
+        particles.forEach((particle) => {
+          particle.update(particleCtx);
+        });
+
+        requestAnimationFrame(animateParticles);
+      }
+      animateParticles();
+
+      // Glow Effect
+      const glow = document.createElement("div");
+      glow.className = "glow";
+      document.body.appendChild(glow);
+    </script>
+  </body>
+</html>
